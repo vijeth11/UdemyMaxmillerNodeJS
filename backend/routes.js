@@ -11,9 +11,12 @@ const routeHandler = (req,res) => {
         res.write("<button type='submit'>Submit</button>");
         res.write("</form></body>");
         res.write("</html>");
-        return res.end();
+        return res.end(); // once res.end() called we cannot call res.write() function should return
     }
     if(req.method=='POST' && req.url=='/message'){
+        // in nodeJs request body comes in the form of chunks of data in the form of bytes which needs to be captured in byte array (ex: body variable) and then combined
+        // we do not get data in req.body like in expressJs so we need to follow below approach
+        // expressJs handles this below task and provide us the data in req.body
         const body = [];
         req.on('data', (chunk) => {
             body.push(chunk);
