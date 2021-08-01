@@ -13,8 +13,8 @@ app.set('views', 'templates');
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
 
-app.use('/users',user.routes);
-app.use('/',main);
+app.use('/users',user);
+app.use('/',main.routes);
 
 server.listen(3000,function(){
     console.log('Listening on port ' + 3000);

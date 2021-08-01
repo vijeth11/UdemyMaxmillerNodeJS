@@ -1,5 +1,9 @@
 extends layout/main-layout.pug
 
 block content
-    main 
-        h1 Hello Welcome to Main 
+    main
+        .form-position
+            h3 Please Enter Your Name? 
+            form(action="/name",method="post")
+                input(name="name",id="name",type="text")
+                button(type="submit") Submit  
