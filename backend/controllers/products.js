@@ -26,15 +26,18 @@ exports.postAddProductPage = (req,res,next)=>{
 }
 
 exports.getProducts = (req,res,next)=>{
-    console.log("shop js",Product.fetchAll());
+    
     //if you are using html file then below code
     //res.sendFile(path.join(rootDir,'views','shop.html'));
 
     // if view engine is setup for the express like PUG in this example then use render
-    res.render('pugs/shop',{
-        products: Product.fetchAll(), 
+    Product.fetchAll((data) => {
+        console.log("shop js",data);
+        res.render('pugs/shop',{
+        products:data, 
         title:"shop", 
         path:"/"
+        })
     });
 
     // if view engine is setup for the express like handlebars then use render
