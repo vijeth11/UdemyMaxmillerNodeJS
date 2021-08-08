@@ -1,3 +1,4 @@
+
 const Product = require('../models/product');
 
 exports.getAddProductPage = (req,res,next)=>{
@@ -6,7 +7,7 @@ exports.getAddProductPage = (req,res,next)=>{
     //res.sendFile(path.join(rootDir,'views','add-product.html'));
 
     // if view engine is setup for the express like PUG in this example then use render
-    res.render('pugs/add-product',{ 
+    res.render('pugs/admin/add-product',{ 
                     title:"Add-Product",
                     path:"/admin/add-product"
                     });
@@ -20,29 +21,26 @@ exports.getAddProductPage = (req,res,next)=>{
 
 exports.postAddProductPage = (req,res,next)=>{
     console.log(req.body);
-    let product = new Product(req.body.title);
+    let product = new Product(
+                              req.body.title, 
+                              req.body.imageUrl, 
+                              req.body.price, 
+                              req.body.description
+                            );
     product.save();
     res.redirect('/');
 }
 
-exports.getProducts = (req,res,next)=>{
-    
-    //if you are using html file then below code
-    //res.sendFile(path.join(rootDir,'views','shop.html'));
-
-    // if view engine is setup for the express like PUG in this example then use render
+exports.getAdminProducts = (req,res,next) => {
     Product.fetchAll((data) => {
-        console.log("shop js",data);
-        res.render('pugs/shop',{
-        products:data, 
-        title:"shop", 
-        path:"/"
+        res.render('pugs/admin/products.pug',{
+            products:data, 
+            title:"All Products", 
+            path:"/admin/products"
         })
     });
+}
 
-    // if view engine is setup for the express like handlebars then use render
-    //res.render('handlebars/shop',{products: adminData.products, title:"shop", hasProducts: adminData.products.length > 0, activeShop:true, productCss:true});
-
-    //if view engine is setup for the express like EJS in this example then use render
-    //res.render('ejs/shop',{products: adminData.products, title:"shop", display: "Shop"});
+exports.editAdminProducts = (req,res,next) => {
+    res.render('pugs/admin/edit-product.pug');
 }

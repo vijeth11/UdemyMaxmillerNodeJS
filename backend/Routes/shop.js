@@ -1,10 +1,16 @@
 const express = require('express');
-const path = require('path')
-const rootDir = require('../utils/path');
-const productController = require('../controllers/products');
+const shopController = require('../controllers/shopController');
 // router and express() constructor work in same way they use same REST method and 'use' method
 const router = express.Router();
 
-router.get('/',productController.getProducts);
+router.get('/',shopController.getIndex);
+
+router.get('/products',shopController.getProducts);
+
+router.get('/product-detail',shopController.getProductDetail);
+
+router.get('/cart',shopController.getCartDetails);
+
+router.get('/checkout', shopController.getCheckout);
 
 module.exports = router;

@@ -12,6 +12,12 @@ html(lang="en")
                 ul.main-header__item-list
                     li.main-header__item
                         a(class= { active: path == "/" }, href="/") shop
+                    li.main-header__item
+                        a(class= { active: path == "/products" }, href="/products") Products
+                    li.main-header__item
+                        a(class= { active: path == "/cart" }, href="/cart") Cart
                     li.main-header__item 
                         a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
+                    li.main-header__item 
+                        a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
         block content
