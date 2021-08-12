@@ -23,7 +23,15 @@ exports.getProducts = (req,res,next)=>{
 }
 
 exports.getProductDetail = (req,res,next) => {
-    res.render('pugs/shop/product-detail.pug');
+    const productId = req.params.productId;
+    Product.findById(productId,(data) => {
+        product = data;
+        res.render('pugs/shop/product-detail.pug',{ 
+            product: data,
+            title:data.title, 
+            path:"/products"
+        });
+    });    
 }
 
 exports.getCartDetails = (req,res,next) =>{
@@ -49,3 +57,10 @@ exports.getCheckout = (req,res,next) => {
         title:'Checkout Page'
     })
 }
+
+exports.getOrders = (req,res,next) =>{
+    res.render('pugs/shop/orders.pug',{
+        path:"/orders",
+        title:"Your Orders"
+    });
+} 
