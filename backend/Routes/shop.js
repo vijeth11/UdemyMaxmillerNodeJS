@@ -12,6 +12,9 @@ router.get('/products',shopController.getProducts);
 // /cart => GET
 router.get('/cart',shopController.getCartDetails);
 
+// /cart => POST
+router.post('/cart',shopController.addProductToCard);
+
 // /checkout => GET
 router.get('/checkout', shopController.getCheckout);
 
