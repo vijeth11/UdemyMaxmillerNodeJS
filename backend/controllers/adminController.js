@@ -1,4 +1,5 @@
 
+const Cart = require('../models/cart');
 const Product = require('../models/product');
 
 exports.getAddProductPage = (req,res,next)=>{
@@ -7,7 +8,7 @@ exports.getAddProductPage = (req,res,next)=>{
     //res.sendFile(path.join(rootDir,'views','add-product.html'));
 
     // if view engine is setup for the express like PUG in this example then use render
-    res.render('pugs/admin/add-product',{ 
+    res.render('pugs/admin/edit-product.pug',{ 
                     title:"Add-Product",
                     path:"/admin/add-product"
                     });
@@ -42,5 +43,42 @@ exports.getAdminProducts = (req,res,next) => {
 }
 
 exports.editAdminProducts = (req,res,next) => {
-    res.render('pugs/admin/edit-product.pug');
+    const productId = req.params.id;
+    const editMode = Boolean(req.query.edit);
+    
+    if(!editMode){
+        res.redirect('/');
+    }else{
+        Product.findById(productId, product => {
+            if(!product){
+                return res.redirect('/');
+            }
+            res.render('pugs/admin/edit-product.pug',{
+                title:"Edit-Product",
+                editing:editMode,
+                product:product
+            });
+        });
+    }
+}
+
+exports.postEditProductPage = (req,res,next) => {
+    console.log(req.body);
+    let product = new Product(
+                              req.body.title, 
+                              req.body.imageUrl, 
+                              req.body.price, 
+                              req.body.description,
+                              req.body.id
+                            );
+    product.save();
+    res.redirect('/admin/products');
+}
+
+exports.deleteAdminProduct = (req,res,next) => {
+    let productId = req.body.id;
+    let productPrice = req.body.price;
+    Product.delteProduct(productId);
+    Cart.deleteProduct(productId,productPrice);
+    res.redirect('/admin/products');
 }

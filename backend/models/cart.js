@@ -7,14 +7,21 @@ const cartFile = path.join(
     'cart.json'
 );
 
+getDataFromCartFile = res => {
+    fs.readFile(cartFile, (err, fileContent)=>{
+        let cart = { products: [], totalPrice:0 };
+        if(!err){
+            let data = JSON.parse(fileContent);            
+            res(data ? data : cart);                
+        }else{
+            res(cart);
+        }
+    });
+}
 module.exports = class Cart {
     
     static addProduct(id, productPrice){
-        fs.readFile(cartFile, (err, fileContent) => {
-            let cart = { products: [], totalPrice:0 };
-            if(!err){
-                cart = JSON.parse(fileContent);                
-            }
+        getDataFromCartFile((cart) => {                      
             const existingProductIndex = cart.products.findIndex(prod => prod.id === id);
             let updatedProduct;
             if(existingProductIndex > -1){
@@ -30,5 +37,34 @@ module.exports = class Cart {
                 console.log(err);
             })            
         });
+    }
+
+    static deleteProduct(id,productPrice,onlyCart=false){
+        getDataFromCartFile((cart) => {
+            const existingProduct = cart.products.find(prod => prod.id === id);
+            let updatedCartProducts = []
+            if(existingProduct){
+                if(onlyCart && existingProduct.qty > 1){
+                    cart.totalPrice -= Number(productPrice);
+                    existingProduct.qty -= 1;
+                    updatedCartProducts = [...cart.products.map(x => {
+                        if(x.id == existingProduct.id)
+                            return existingProduct;
+                        return x;
+                    })]
+                }else{
+                 cart.totalPrice -= Number(existingProduct.qty) * Number(productPrice);
+                 updatedCartProducts = cart.products.filter(prod => prod.id != id);
+                }
+                 cart.products = [...updatedCartProducts]
+                 fs.writeFile(cartFile, JSON.stringify(cart), err => {
+                    console.log(err);
+                })      
+            }
+        })
+    }
+
+    static getCartData(res){
+        getDataFromCartFile(res);
     }
 }

@@ -36,16 +36,32 @@ exports.getProductDetail = (req,res,next) => {
 }
 
 exports.getCartDetails = (req,res,next) =>{
-    res.render('pugs/shop/cart.pug',{
-        path:"/cart",
-        title:"Your Cart"
-    });
+    Cart.getCartData(cart => {
+        Product.fetchAll(products => { 
+            let filteredProducts = []
+            for(let item of cart.products){ 
+                filteredProducts.push({...products.find(x => x.id == item.id),qty:item.qty});
+            }
+            res.render('pugs/shop/cart.pug',{
+                path:"/cart",
+                title:"Your Cart",
+                products:filteredProducts
+            });
+        });
+    });    
 } 
 
 exports.addProductToCard =(req,res,next) => {
     const productId = req.body.productId;
     const productPrice = req.body.productPrice;
     Cart.addProduct(productId,productPrice);
+    res.redirect('/cart');
+}
+
+exports.deleteCartItem = (req,res,next) => {
+    const productId = req.body.id;
+    const productPrice = req.body.price;
+    Cart.deleteProduct(productId,productPrice,true);
     res.redirect('/cart');
 }
 

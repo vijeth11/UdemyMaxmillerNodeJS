@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const rootDir = require('../utils/path');
-const products = [];
 const filePath = path.join(rootDir,'data','product.json');
 
 getDataFromFile = res => {
@@ -14,7 +13,8 @@ getDataFromFile = res => {
 }
 module.exports = class Product{
     
-    constructor(title,imageUrl, price, description){
+    constructor(title,imageUrl, price, description, id=null){
+        this.id = id;
         this.title=title;
         this.imageUrl = imageUrl;
         this.description = description;
@@ -22,13 +22,18 @@ module.exports = class Product{
     }
 
     save(){
-        this.id = Math.random().toString();        
         getDataFromFile((products) => {
-            products.push(this);
+            if(this.id){
+                const productIndex = products.findIndex(x => x.id == this.id);
+                products[productIndex] = {...this};
+            }else{
+                this.id = Math.random().toString();
+                products.push(this);                
+            }
             fs.writeFile(filePath, JSON.stringify(products),(err)=>{
                 console.log(err);
             });
-        })
+        })       
     }
 
     static fetchAll(res){
@@ -38,6 +43,15 @@ module.exports = class Product{
     static findById(id,res){
         getDataFromFile((data) => {
             res(data.find( x => x.id == id));
+        });
+    }
+
+    static delteProduct(id){
+        getDataFromFile((products) => {            
+            let updatedProductList = [...products.filter(x => x.id != id)];
+            fs.writeFile(filePath, JSON.stringify(updatedProductList),(err)=>{
+                console.log(err);
+            });
         });
     }
 }
