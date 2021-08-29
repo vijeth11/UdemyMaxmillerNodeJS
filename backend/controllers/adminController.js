@@ -28,8 +28,7 @@ exports.postAddProductPage = (req,res,next)=>{
                               req.body.price, 
                               req.body.description
                             );
-    product.save();
-    res.redirect('/');
+    product.save(() =>  res.redirect('/'));   
 }
 
 exports.getAdminProducts = (req,res,next) => {
@@ -43,6 +42,8 @@ exports.getAdminProducts = (req,res,next) => {
 }
 
 exports.editAdminProducts = (req,res,next) => {
+
+    //Param object name should match variable name given in route (ex: id below)
     const productId = req.params.id;
     const editMode = Boolean(req.query.edit);
     
@@ -71,8 +72,8 @@ exports.postEditProductPage = (req,res,next) => {
                               req.body.description,
                               req.body.id
                             );
-    product.save();
-    res.redirect('/admin/products');
+    product.save(() => res.redirect('/admin/products'));
+    
 }
 
 exports.deleteAdminProduct = (req,res,next) => {

@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const adminRouter = require('./Routes/admin');
 const shopRouter = require('./Routes/shop');
 const errorRouter = require('./Routes/404PageNotFound');
+const sequelize = require('./utils/database').sequelize;
 const app = express();
 const expressHbs = require('express-handlebars');
 
@@ -39,6 +40,15 @@ app.use('/admin',adminRouter); // /admin part is ommited from url path when sent
 //     // browser will be spinning until unless you use res.send()
 // });
 app.use(errorRouter);
+
+// creates the table of models related to this project if does not exist in database already
+sequelize.sync()
+.then(result => {
+    console.log(result);
+})
+.catch(err => {
+    console.log(err);
+})
 
 //const server = http.createServer(app);
 //server.listen(3000);

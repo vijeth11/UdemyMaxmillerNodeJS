@@ -1,5 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const sequelize = require('../utils/database').sequelize;
+const { Sequelize, DataType, Model, DataTypes } = require('sequelize');
+const product = sequelize.define('product');
 
 const cartFile = path.join(
     path.dirname(process.mainModule.filename),
@@ -18,7 +21,7 @@ getDataFromCartFile = res => {
         }
     });
 }
-module.exports = class Cart {
+class Cart extends Model{
     
     static addProduct(id, productPrice){
         getDataFromCartFile((cart) => {                      
@@ -68,3 +71,24 @@ module.exports = class Cart {
         getDataFromCartFile(res);
     }
 }
+
+//creating table definition using sequalizer in mysql database refer docfor more info
+Cart.init({
+    id : {
+        type:DataTypes.INTEGER,
+        primaryKey: true,
+        aoutoIncrement: true
+    },  
+    totalPrice: {
+        type:DataTypes.DOUBLE
+    }  
+},{
+    sequelize,
+    modelName: 'Cart'
+})
+
+//Seqelizer code to crate a many-to-many relation
+Cart.belongsToMany(product, { through: 'ProductCart' });
+product.belongsToMany(Cart, { through: 'ProductCart' });
+
+module.exports = Cart;
