@@ -24,7 +24,7 @@ getDataFromCartFile = res => {
 class Cart extends Model{
     
     static addProduct(id, productPrice){
-        getDataFromCartFile((cart) => {                      
+        /*getDataFromCartFile((cart) => {                      
             const existingProductIndex = cart.products.findIndex(prod => prod.id === id);
             let updatedProduct;
             if(existingProductIndex > -1){
@@ -39,6 +39,11 @@ class Cart extends Model{
             fs.writeFile(cartFile,JSON.stringify(cart), err => {
                 console.log(err);
             })            
+        });*/
+        let cart = this.findAll({
+            where: {
+
+            }
         });
     }
 
@@ -68,7 +73,8 @@ class Cart extends Model{
     }
 
     static getCartData(res){
-        getDataFromCartFile(res);
+        //getDataFromCartFile(res);
+        this.findAll();
     }
 }
 
