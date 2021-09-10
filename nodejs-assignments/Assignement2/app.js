@@ -19,6 +19,12 @@ app.use((req,res,next)=>{
     console.log("middleware two");
     next();
 });*/
+app.use('/api/:status',(req,res,next)=> {
+    let status = req.params.status || 400;
+    console.log("Error Message API sample for status "+ status);
+    res.status(+status).send({errorMessage:"Something broken",devMessage:"dev for testing purpose this error ",issueCount:0});
+});
+
 app.use('/',(req,res,next)=>{
     res.send("<h1>Welcome to Assignement2</h1>");
 });

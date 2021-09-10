@@ -4,12 +4,13 @@ const path = require('path');
 //const routes = require('./routes') //Vanila NodeJs
 //const server = http.createServer(routes); //Vanila NodeJs
 const bodyParser = require('body-parser');
-const adminRouter = require('./Routes/admin');
 const shopRouter = require('./Routes/shop');
+const adminRouter = require('./Routes/admin');
 const errorRouter = require('./Routes/404PageNotFound');
 const sequelize = require('./utils/database').sequelize;
 const app = express();
 const expressHbs = require('express-handlebars');
+const User = require('./models/user');
 
 // Dynamic Templates setup
 /*PUG*/
@@ -30,7 +31,13 @@ app.set('views', 'views'); // this tells template engine to consider views folde
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
-
+app.use((req,res,next)=>{
+    let user = new User();
+    user.findById(1).then(() => {
+        req.user = user;
+        next();
+    });    
+});
 
 app.use(shopRouter);
 app.use('/admin',adminRouter); // /admin part is ommited from url path when sent to router in admin
@@ -41,10 +48,19 @@ app.use('/admin',adminRouter); // /admin part is ommited from url path when sent
 // });
 app.use(errorRouter);
 
-// creates the table of models related to this project if does not exist in database already
-sequelize.sync()
+// creates the table of models related to this project if does not exist in database already sync({ force: true}) to drop all tables and recreate
+sequelize
+//.sync({force:true})
+.sync()
 .then(result => {
     console.log(result);
+    return User.findOne({where:{id:1}});
+})
+.then(user => {
+    if(!user){
+        return User.create({name:"Main", email:"test@test1.com"});
+    }
+    return user;
 })
 .catch(err => {
     console.log(err);

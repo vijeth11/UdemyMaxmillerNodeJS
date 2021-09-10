@@ -1,6 +1,7 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
 
+console.log(typeof(new Cart()));
 exports.getProducts = (req,res,next)=>{
     
     //if you are using html file then below code
@@ -36,7 +37,7 @@ exports.getProductDetail = (req,res,next) => {
 
 exports.getCartDetails = (req,res,next) =>{
     Cart.getCartData(cart => {
-        Product.fetchAll(products => { 
+        /*Product.fetchAll(products => { 
             let filteredProducts = []
             for(let item of cart.products){ 
                 filteredProducts.push({...products.find(x => x.id == item.id),qty:item.qty});
@@ -46,22 +47,31 @@ exports.getCartDetails = (req,res,next) =>{
                 title:"Your Cart",
                 products:filteredProducts
             });
+        });*/        
+        res.render('pugs/shop/cart.pug',{
+            path:"/cart",
+            title:"Your Cart",
+            products:cart.Products
         });
     });    
 } 
 
-exports.addProductToCard =(req,res,next) => {
+exports.addProductToCard =async (req,res,next) => {
     const productId = req.body.productId;
     const productPrice = req.body.productPrice;
-    Cart.addProduct(productId,productPrice);
-    res.redirect('/cart');
+    const userId = req.user.Id;
+    Cart.addProduct(productId,userId,productPrice,() => {
+        res.redirect('/cart');
+    });    
 }
 
 exports.deleteCartItem = (req,res,next) => {
     const productId = req.body.id;
     const productPrice = req.body.price;
-    Cart.deleteProduct(productId,productPrice,true);
-    res.redirect('/cart');
+    const userId = req.user.Id;
+    Cart.deleteProduct(productId,userId,productPrice,true,() => {
+        res.redirect('/cart');
+    });    
 }
 
 exports.getIndex = (req,res,next) => {

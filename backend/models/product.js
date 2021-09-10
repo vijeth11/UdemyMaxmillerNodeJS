@@ -3,7 +3,9 @@ const path = require('path');
 const rootDir = require('../utils/path');
 const filePath = path.join(rootDir,'data','product.json');
 const db = require('../utils/database').mysql;
-
+const sequelize = require('../utils/database').sequelize;
+const DataTypes  = require('sequelize').DataTypes;
+const user = require('./user');
 getDataFromFile = res => {
     fs.readFile(filePath, (err, fileContent)=>{
         if(err){
@@ -14,12 +16,13 @@ getDataFromFile = res => {
 }
 module.exports = class Product{
     
-    constructor(title,imageUrl, price, description, id=null){
+    constructor(title,imageUrl, price, description, userId,id=null){
         this.id = id;
         this.title=title;
         this.imageUrl = imageUrl;
         this.description = description;
         this.price = price;
+        this.userId = userId;
     }
 
     save(redirect){
@@ -36,10 +39,16 @@ module.exports = class Product{
                 console.log(err);
             });
         }) */      
-
-        db.execute('insert into products values(?,?,?,?)',[this.title,this.price,this.description,this.imageUrl])
-        .then(res => redirect())
-        .catch(err => console.log(err));
+        if(this.id){
+            db.execute('update products set title = ?, price = ?, description = ?, imageUrl =? where id = ?',[this.title,this.price,this.description,this.imageUrl, this.id])
+            .then(res => redirect())
+            .catch(err => console.log(err));
+        }else{
+            console.log(this.userId);
+            db.execute('insert into products (title,price,description,imageUrl,userId) values(?,?,?,?,?)',[this.title,this.price,this.description,this.imageUrl,this.userId])
+            .then(res => redirect())
+            .catch(err => console.log(err));
+        }
     }
 
     static fetchAll(res){
@@ -75,3 +84,28 @@ module.exports = class Product{
         .catch(err => console.log(err))
     }
 }
+
+const product = sequelize.define('Product',{
+    id: {
+        type:DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    title:{
+        type:DataTypes.STRING
+    },
+    imageUrl:{
+        type: DataTypes.TEXT
+    },
+    description:{
+        type: DataTypes.TEXT
+    },
+    price:{
+        type: DataTypes.DOUBLE
+    }
+},{
+    timestamps: false
+});
+
+//Sequelize one-To-Many 
+product.belongsTo(user,{ constraints: true, onDelete: 'CASCADE' });

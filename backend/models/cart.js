@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const sequelize = require('../utils/database').sequelize;
 const { Sequelize, DataType, Model, DataTypes } = require('sequelize');
-const product = sequelize.define('product');
+const product = sequelize.models.Product;
+const user = require('./user');
 
 const cartFile = path.join(
     path.dirname(process.mainModule.filename),
@@ -23,7 +24,7 @@ getDataFromCartFile = res => {
 }
 class Cart extends Model{
     
-    static addProduct(id, productPrice){
+    static async addProduct(id, userId, productPrice, redirect){
         /*getDataFromCartFile((cart) => {                      
             const existingProductIndex = cart.products.findIndex(prod => prod.id === id);
             let updatedProduct;
@@ -40,15 +41,40 @@ class Cart extends Model{
                 console.log(err);
             })            
         });*/
-        let cart = this.findAll({
-            where: {
-
+        try{
+            let cart = await Cart.findOne({ 
+                include:{
+                    model:product
+                },               
+                where: {
+                    UserId: userId
+                }            
+            });            
+            if(!cart){
+                let newcart = await Cart.create({
+                    totalPrice:productPrice,
+                    UserId:userId
+                });
+                //newcart.addProduct(await product.findOne({where:{id:id}}),{through:"ProductCart"});      --this also works
+                await newcart.addProduct(await product.findOne({where:{id:id}}),{through:{quantity:1}});        
             }
-        });
+            else{
+                let productCart = await ProductCart.findOne({where:{cartId:cart.dataValues.id, productId:id}});
+                if(!productCart){
+                    await cart.addProduct(await product.findOne({where:{id:id}}),{through:{quantity:1}});
+                }else{
+                    await cart.addProduct(await product.findOne({where:{id:id}}),{through:{quantity:Number(cart.Products[0].ProductCart.dataValues.quantity)+1}});
+                }
+                await cart.update({totalPrice: Number(cart.dataValues.totalPrice) + Number(productPrice)});                              
+            }
+            redirect();
+        }catch(ex){
+            console.log(ex);
+        }
     }
 
-    static deleteProduct(id,productPrice,onlyCart=false){
-        getDataFromCartFile((cart) => {
+    static async deleteProduct(id,userId,productPrice,onlyCart=false,redirect){
+        /*getDataFromCartFile((cart) => {
             const existingProduct = cart.products.find(prod => prod.id === id);
             let updatedCartProducts = []
             if(existingProduct){
@@ -69,12 +95,49 @@ class Cart extends Model{
                     console.log(err);
                 })      
             }
-        })
+        })*/
+        try{
+            let cart = (await Cart.findOne({where:{UserId:userId}}));            
+            cart.update({totalPrice:+cart.totalPrice - (+productPrice)});
+            let productQuantity = (await ProductCart.findOne({
+                where:{
+                    productId:id,
+                    cartId:cart.dataValues.id                        
+                }
+            })).dataValues.quantity;            
+            if(onlyCart && +productQuantity > 1){
+                await ProductCart.update({quantity: +productQuantity - 1},{
+                    where:{
+                            productId:id,
+                            cartId:cart.dataValues.id
+                        }
+                });
+            } else {
+                await ProductCart.destroy({
+                    where:{
+                        productId:id,
+                        cartId:cart.dataValues.id
+                    }
+                });
+            }
+            redirect();          
+            
+        }
+        catch(ex){
+            console.log(ex);
+        }
     }
 
     static getCartData(res){
         //getDataFromCartFile(res);
-        this.findAll();
+
+      Cart.findOne({include:{model:product}})
+      .then(data => {
+          res(data);
+      })
+      .catch(err => {
+          console.log(err);
+      });
     }
 }
 
@@ -83,18 +146,21 @@ Cart.init({
     id : {
         type:DataTypes.INTEGER,
         primaryKey: true,
-        aoutoIncrement: true
+        autoIncrement: true
     },  
     totalPrice: {
         type:DataTypes.DOUBLE
     }  
 },{
     sequelize,
-    modelName: 'Cart'
-})
-
+    modelName: 'Cart',
+    timestamps: false
+});
+//Sequalize many to one
+Cart.belongsTo(user,{constraints:true, onDelete:"CASCADE"});
 //Seqelizer code to crate a many-to-many relation
-Cart.belongsToMany(product, { through: 'ProductCart' });
-product.belongsToMany(Cart, { through: 'ProductCart' });
+const ProductCart = sequelize.define('ProductCart',{quantity:{type:DataTypes.INTEGER}},{timestamps: false});
+Cart.belongsToMany(product, { through: ProductCart});
+product.belongsToMany(Cart, { through: ProductCart});
 
 module.exports = Cart;

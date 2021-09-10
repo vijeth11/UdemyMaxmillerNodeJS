@@ -26,7 +26,8 @@ exports.postAddProductPage = (req,res,next)=>{
                               req.body.title, 
                               req.body.imageUrl, 
                               req.body.price, 
-                              req.body.description
+                              req.body.description,
+                              req.user.Id
                             );
     product.save(() =>  res.redirect('/'));   
 }
@@ -70,6 +71,7 @@ exports.postEditProductPage = (req,res,next) => {
                               req.body.imageUrl, 
                               req.body.price, 
                               req.body.description,
+                              req.user.Id,
                               req.body.id
                             );
     product.save(() => res.redirect('/admin/products'));
