@@ -24,6 +24,9 @@ router.get('/checkout', shopController.getCheckout);
 // /orders => GET
 router.get('/orders', shopController.getOrders);
 
+// /create-order => POST
+router.post('/create-order', shopController.postOrder);
+
 // /product-detail/1 => GET
 router.get('/product-detail/:productId',shopController.getProductDetail); // always put routes with dynamic params in last because it will consider anything passed after first route part as dynamic
 module.exports = router;

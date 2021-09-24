@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
+const Order = require('../models/order');
 
 console.log(typeof(new Cart()));
 exports.getProducts = (req,res,next)=>{
@@ -47,12 +48,13 @@ exports.getCartDetails = (req,res,next) =>{
                 title:"Your Cart",
                 products:filteredProducts
             });
-        });*/        
+        });*/          
         res.render('pugs/shop/cart.pug',{
             path:"/cart",
             title:"Your Cart",
             products:cart.Products
         });
+        
     });    
 } 
 
@@ -84,7 +86,24 @@ exports.getIndex = (req,res,next) => {
     });
 }
 
+exports.postOrder = (req,res,next) => {
+    const userId = req.user.Id;
+    let fetchCart = null;
+    Cart.findOne({where:{UserId:userId}})
+    .then(cart => {
+       fetchCart = cart;
+       return cart.getProducts();
+    })
+    .then(products => {
+       Order.addProducts(products,userId,fetchCart,() => {
+           res.redirect('/orders');
+       });
+    })
+    .catch(err => console.log(err));
+}
+
 exports.getCheckout = (req,res,next) => {
+    
     res.render('pugs/shop/checkout.pug',{
         path:'/checkout',
         title:'Checkout Page'
@@ -92,8 +111,15 @@ exports.getCheckout = (req,res,next) => {
 }
 
 exports.getOrders = (req,res,next) =>{
-    res.render('pugs/shop/orders.pug',{
-        path:"/orders",
-        title:"Your Orders"
-    });
+    const userId = req.user.Id
+    Order.fetchAll(userId)
+    .then(orders => {               
+        res.render('pugs/shop/orders.pug',{
+            path:"/orders",
+            title:"Your Orders",
+            orders:orders
+        });
+    })
+    
 } 
+

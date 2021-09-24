@@ -5,4 +5,15 @@ block styles
 
 block content 
     main
-        h1 Nothing there!
+        if orders.length > 0
+            ul
+                each order in orders
+                    li 
+                     h1 OrderId: #{order.id} 
+                     ul 
+                        each product in order.Products
+                            li
+                                h1 Product Name : #{product.title}
+                                h2 Quantity: #{product.orderItem.quantity} 
+        else
+            h1 Nothing there!
