@@ -160,7 +160,14 @@ Cart.init({
 Cart.belongsTo(user,{constraints:true, onDelete:"CASCADE"});
 user.hasMany(Cart);
 //Seqelizer code to crate a many-to-many relation
-const ProductCart = sequelize.define('ProductCart',{quantity:{type:DataTypes.INTEGER}},{timestamps: false});
+const ProductCart = sequelize.define('ProductCart',{
+    quantity:{
+        type:DataTypes.INTEGER
+    }
+},
+{
+    timestamps: false
+});
 Cart.belongsToMany(product, { through: ProductCart});
 product.belongsToMany(Cart, { through: ProductCart});
 

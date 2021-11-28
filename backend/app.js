@@ -4,6 +4,7 @@ const path = require('path');
 //const routes = require('./routes') //Vanila NodeJs
 //const server = http.createServer(routes); //Vanila NodeJs
 const bodyParser = require('body-parser');
+const authRouter = require('./Routes/auth');
 const shopRouter = require('./Routes/shop');
 const adminRouter = require('./Routes/admin');
 const errorRouter = require('./Routes/404PageNotFound');
@@ -40,6 +41,7 @@ app.use((req,res,next)=>{
 });
 
 app.use(shopRouter);
+app.use(authRouter);
 app.use('/admin',adminRouter); // /admin part is ommited from url path when sent to router in admin
 // app.use((req,res,next)=>{ //use method does no make exact path match due to which order matters while REST methods does exact match of pattern
 //     //console.log("next middleware");

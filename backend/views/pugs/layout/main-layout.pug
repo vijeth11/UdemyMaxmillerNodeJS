@@ -19,10 +19,13 @@ html(lang="en")
                         a(class= { active: path == "/cart" }, href="/cart") Cart
                     li.main-header__item
                         a(class= { active: path == "/orders" }, href="/orders") Orders
+                    //li.main-header__item 
+                    //    a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
+                    //li.main-header__item 
+                    //    a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
+                ul.main-header__item-list 
                     li.main-header__item 
-                        a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
-                    li.main-header__item 
-                        a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
+                        a(class = { active: path == "/login" }, href="/login") Login
         nav.mobile-nav
             ul.mobile-nav__item-list
                 li.mobile-nav__item
@@ -37,5 +40,6 @@ html(lang="en")
                     a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
                 li.mobile-nav__item 
                     a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
+        
         block content
         script(src="/js/main.js")

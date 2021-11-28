@@ -39,6 +39,8 @@ form {
   height: 100%;
   display: flex;
   align-items: center;
+  width:100%;
+  justify-content: space-between;
 }
 
 .main-header__item-list {
