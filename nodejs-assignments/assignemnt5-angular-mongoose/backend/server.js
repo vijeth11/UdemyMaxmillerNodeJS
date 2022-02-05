@@ -6,8 +6,9 @@
  const dotenv = require('dotenv').config({ path: './.env' });
  var app = require('./app');
  var debug = require('debug')('boilerplate:server');
- var http = require('http');
- 
+ var http = require('http'); 
+ var mongoose = require('mongoose');
+
  /**
   * Get port from environment and store in Express.
   */
@@ -24,10 +25,21 @@
  /**
   * Listen on provided port, on all network interfaces.
   */
- 
- server.listen(port);
- server.on('error', onError);
- server.on('listening', onListening);
+ // MongoDb add database access password otherwise bad auth will be thrown
+ var uri = 'mongodb+srv://cluster0.fucln.mongodb.net/todolist?retryWrites=true&w=majority';
+ mongoose
+ .connect(uri,{ 
+   user: process.env.MONGO_USER, 
+   pass: process.env.MONGO_PASSWORD, 
+   useNewUrlParser: true, 
+   useUnifiedTopology: true })
+ .then(() => { 
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
+ }).catch((err)=>{
+    console.log(err);
+ });
  
  /**
   * Normalize a port into a number, string, or false.
