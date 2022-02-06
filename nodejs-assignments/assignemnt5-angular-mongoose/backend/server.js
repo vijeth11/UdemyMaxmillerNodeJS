@@ -8,6 +8,7 @@
  var debug = require('debug')('boilerplate:server');
  var http = require('http'); 
  var mongoose = require('mongoose');
+ var ioserver = require('socket.io');
 
  /**
   * Get port from environment and store in Express.
@@ -21,7 +22,13 @@
   */
  
  var server = http.createServer(app);
- 
+ var io = new ioserver.Server(server,{
+  /*cors: {
+    origin: "http://localhost:4200",
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
+  }*/
+ });
  /**
   * Listen on provided port, on all network interfaces.
   */
@@ -101,4 +108,16 @@
    debug('Listening on ' + bind);
    console.log('Listening on ', bind);
  }
+ 
+ io.on("connection", (socket)=>{
+   console.log("recieved a client at id ", socket.id);
+   // back to connected client
+   socket.emit("message","hello");   
+   socket.on('messagesend',(msg)=>{
+    console.log("recieved from client socket ",msg);
+    socket.broadcast.emit("message",msg.message);
+  })
+ })
+
+ 
  

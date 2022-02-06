@@ -17,6 +17,17 @@
     <button class="add-todo" (click)="displayModal=true">Add TodoItem</button>
   </div>
 </div>
+
+<div class="message board">
+  <div>
+    <ul>
+      <li *ngFor="let message of messages">{{message}}</li>
+    </ul>
+  </div>
+  <input #message/>
+  <button (click)="sendMessage(message.value)">Send</button>
+</div>
+
 <div *ngIf="displayModal" class="modal-background">
   <div  class="modal">
     <div class="modal-content">
@@ -29,4 +40,5 @@
     </div>
 </div>
 </div>
+
 <router-outlet></router-outlet>

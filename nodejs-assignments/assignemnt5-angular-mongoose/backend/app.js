@@ -20,13 +20,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+app.use('/api/user',userRouter);
 
 app.use((req,res,next)=>{
-  const userName = req.body.username;
-  if(req.path.indexOf('user') > -1 || req.method == "GET"){
+  if(req.method == 'GET'){
     next();
     return;
   }
+  const userName = req.body.username;
   userModel.findOne({name:userName})
   .then(result => {
     if(!result) {
@@ -42,7 +43,7 @@ app.use((req,res,next)=>{
   })  
 });
 
-app.use('/api/user',userRouter);
+
 
 app.use('/api', dataRouter);
 
