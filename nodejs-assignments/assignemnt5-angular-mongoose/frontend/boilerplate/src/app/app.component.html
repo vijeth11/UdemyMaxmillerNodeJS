@@ -3,7 +3,8 @@
     <li>Todo List</li>
   </ul>
 </nav>
-<div class="todo-page">
+<div id="background" width="40%" height="120px" style="background:rgb(152, 155, 6)">
+<div class="todo-page" id="todo1" (mouseover)="currentIndex=0">
   <div class="todo-content">
     <div class="todo-header"><h1>Your Todo List</h1></div>
     <ul class="todo-list">
@@ -16,6 +17,21 @@
     </ul>
     <button class="add-todo" (click)="displayModal=true">Add TodoItem</button>
   </div>
+</div>
+<div class="todo-page" id="todo2" (mouseover)="currentIndex=1">
+  <div class="todo-content">
+    <div class="todo-header"><h1>Your Todo List</h1></div>
+    <ul class="todo-list">
+      <li *ngFor="let todo of todoItems">
+        <div class="todo">
+          <p>{{todo.listItem}}</p>
+          <button (click)="onDelete(todo.listId)">delete</button>
+        </div>
+      </li>
+    </ul>
+    <button class="add-todo" (click)="displayModal=true">Add TodoItem</button>
+  </div>
+</div>
 </div>
 
 <div class="message board">
