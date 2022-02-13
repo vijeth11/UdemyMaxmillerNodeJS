@@ -1,0 +1,14 @@
+.dot {
+    height: 64px;
+    width: 64px;
+    display: inline-block;
+    opacity: 0.75;
+    color: black;
+    background-size: 30px;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: flex-end;
+    background-image: url('./images/icons8-cursor-64.png');
+}

@@ -1,0 +1,14 @@
+<div class="todo-page" id="todo1">
+    <div class="todo-content">
+      <div class="todo-header"><h1>Your Todo List</h1></div>
+      <ul class="todo-list">
+        <li *ngFor="let todo of todoItems">
+          <div class="todo">
+            <p>{{todo.listItem}}</p>
+            <button (click)="onDelete(todo.listId)">delete</button>
+          </div>
+        </li>
+      </ul>
+      <button class="add-todo" (click)="openPopup()">Add TodoItem</button>
+    </div>
+  </div>

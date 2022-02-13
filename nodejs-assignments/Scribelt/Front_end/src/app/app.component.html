@@ -1,0 +1,32 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<style>
+  :host {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+</style>
+</head>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6">
+      <app-board-menu></app-board-menu>
+    </div>
+    <div class="col-md-6">
+      <app-notif-bar></app-notif-bar>
+    </div>
+  </div>
+</div>
+<app-toolbar (itemSelected)="toolSelected($event)"></app-toolbar>
+<div id="background">
+<ng-template appDynamicToolDirective=""></ng-template>
+
+<input id="hiddenImageFileSelector" type="file" accept=".jpg,.png,.jpeg" style="display:none;height: 1px;width: 1px;" (change)="fileSelected($event)">
+<div #contextMenu></div>
+</div>
