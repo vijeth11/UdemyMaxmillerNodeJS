@@ -15,31 +15,44 @@ html(lang="en")
                         a(class= { active: path == "/" }, href="/") shop
                     li.main-header__item
                         a(class= { active: path == "/products" }, href="/products") Products
-                    li.main-header__item
-                        a(class= { active: path == "/cart" }, href="/cart") Cart
-                    li.main-header__item
-                        a(class= { active: path == "/orders" }, href="/orders") Orders
-                    //li.main-header__item 
-                    //    a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
-                    //li.main-header__item 
-                    //    a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
-                ul.main-header__item-list 
-                    li.main-header__item 
-                        a(class = { active: path == "/login" }, href="/login") Login
+                    if isAuthenticated
+                        li.main-header__item
+                            a(class= { active: path == "/cart" }, href="/cart") Cart
+                        li.main-header__item
+                            a(class= { active: path == "/orders" }, href="/orders") Orders
+                        li.main-header__item 
+                            a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
+                        li.main-header__item 
+                            a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
+                ul.main-header__item-list
+                    if !isAuthenticated 
+                        li.main-header__item 
+                            a(class = { active: path == "/login" }, href="/login") Login
+                    if isAuthenticated
+                        li.main-header__item 
+                            form( action = "/logout" method="post")
+                                button(type="submit") Logout
         nav.mobile-nav
             ul.mobile-nav__item-list
                 li.mobile-nav__item
                     a(class= { active: path == "/" }, href="/") shop
                 li.mobile-nav__item
                     a(class= { active: path == "/products" }, href="/products") Products
-                li.mobile-nav__item
-                    a(class= { active: path == "/cart" }, href="/cart") Cart
-                li.mobile-nav__item
-                    a(class= { active: path == "/orders" }, href="/orders") Orders
-                li.mobile-nav__item 
-                    a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
-                li.mobile-nav__item 
-                    a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
-        
+                if isAuthenticated
+                    li.mobile-nav__item
+                        a(class= { active: path == "/cart" }, href="/cart") Cart
+                    li.mobile-nav__item
+                        a(class= { active: path == "/orders" }, href="/orders") Orders
+                    li.mobile-nav__item 
+                        a(class = { active: path == "/admin/add-product" }, href="/admin/add-product") Add Product
+                    li.mobile-nav__item 
+                        a(class = { active: path == "/admin/products" }, href="/admin/products") Admin Products
+                if !isAuthenticated
+                    li.mobile-nav__item
+                        a(class = { active: path == "/login" }, href="/login") Login
+                if isAuthenticated 
+                    li.mobile-nav__item
+                        form( action = "/logout" method="post")
+                            button(type="submit") Logout
         block content
         script(src="/js/main.js")

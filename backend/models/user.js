@@ -9,7 +9,6 @@ class User extends Model{
            this.Name = user.name;
            this.Email = user.email;
            this.Id = user.id;
-           console.log(this);
        })
        .catch(err => console.log(err));
    }

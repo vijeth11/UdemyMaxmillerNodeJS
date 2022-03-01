@@ -14,7 +14,8 @@ exports.getProducts = (req,res,next)=>{
         res.render('pugs/shop/product-list',{
         products:data, 
         title:"All Products", 
-        path:"/products"
+        path:"/products",
+        isAuthenticated:req.session.isLoggedIn
         })
     });
 
@@ -31,7 +32,8 @@ exports.getProductDetail = (req,res,next) => {
         res.render('pugs/shop/product-detail.pug',{ 
             product: data,
             title:data.title, 
-            path:"/products"
+            path:"/products",
+            isAuthenticated:req.session.isLoggedIn
         });
     });    
 }
@@ -52,7 +54,8 @@ exports.getCartDetails = (req,res,next) =>{
         res.render('pugs/shop/cart.pug',{
             path:"/cart",
             title:"Your Cart",
-            products:cart.Products
+            products:cart.Products,
+            isAuthenticated:req.session.isLoggedIn
         });
         
     });    
@@ -61,7 +64,7 @@ exports.getCartDetails = (req,res,next) =>{
 exports.addProductToCard =async (req,res,next) => {
     const productId = req.body.productId;
     const productPrice = req.body.productPrice;
-    const userId = req.user.Id;
+    const userId = req.session.user.Id;
     Cart.addProduct(productId,userId,productPrice,() => {
         res.redirect('/cart');
     });    
@@ -70,7 +73,7 @@ exports.addProductToCard =async (req,res,next) => {
 exports.deleteCartItem = (req,res,next) => {
     const productId = req.body.id;
     const productPrice = req.body.price;
-    const userId = req.user.Id;
+    const userId = req.session.user.Id;
     Cart.deleteProduct(productId,userId,productPrice,true,() => {
         res.redirect('/cart');
     });    
@@ -81,13 +84,14 @@ exports.getIndex = (req,res,next) => {
         res.render('pugs/shop/index.pug',{
         products:data, 
         title:"shop", 
-        path:"/"
+        path:"/",
+        isAuthenticated:req.session.isLoggedIn
         })
     });
 }
 
 exports.postOrder = (req,res,next) => {
-    const userId = req.user.Id;
+    const userId = req.session.user.Id;
     let fetchCart = null;
     Cart.findOne({where:{UserId:userId}})
     .then(cart => {
@@ -106,18 +110,20 @@ exports.getCheckout = (req,res,next) => {
     
     res.render('pugs/shop/checkout.pug',{
         path:'/checkout',
-        title:'Checkout Page'
+        title:'Checkout Page',
+        isAuthenticated:req.session.isLoggedIn
     })
 }
 
 exports.getOrders = (req,res,next) =>{
-    const userId = req.user.Id
+    const userId = req.session.user.Id
     Order.fetchAll(userId)
     .then(orders => {               
         res.render('pugs/shop/orders.pug',{
             path:"/orders",
             title:"Your Orders",
-            orders:orders
+            orders:orders,
+            isAuthenticated:req.session.isLoggedIn
         });
     })
     

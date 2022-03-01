@@ -1,9 +1,11 @@
 //const http = require('http');
+const uuid = require('uuid');
 const express = require('express');
 const path = require('path');
 //const routes = require('./routes') //Vanila NodeJs
 //const server = http.createServer(routes); //Vanila NodeJs
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const authRouter = require('./Routes/auth');
 const shopRouter = require('./Routes/shop');
 const adminRouter = require('./Routes/admin');
@@ -12,7 +14,7 @@ const sequelize = require('./utils/database').sequelize;
 const app = express();
 const expressHbs = require('express-handlebars');
 const User = require('./models/user');
-
+const SessionKey = uuid.v1();
 // Dynamic Templates setup
 /*PUG*/
 app.set('view engine','pug');
@@ -32,13 +34,15 @@ app.set('views', 'views'); // this tells template engine to consider views folde
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
-app.use((req,res,next)=>{
+// Sessions can be stored in a database like mongodb to do that checkout express-session docs
+app.use(session({secret:SessionKey, resave:false, saveUninitialized:false}));
+/*app.use((req,res,next)=>{
     let user = new User();
     user.findById(1).then(() => {
         req.user = user;
         next();
     });    
-});
+});*/
 
 app.use(shopRouter);
 app.use(authRouter);

@@ -27,7 +27,7 @@ exports.postAddProductPage = (req,res,next)=>{
                               req.body.imageUrl, 
                               req.body.price, 
                               req.body.description,
-                              req.user.Id
+                              req.session.user.Id
                             );
     product.save(() =>  res.redirect('/'));   
 }
@@ -37,7 +37,8 @@ exports.getAdminProducts = (req,res,next) => {
         res.render('pugs/admin/products.pug',{
             products:data, 
             title:"All Products", 
-            path:"/admin/products"
+            path:"/admin/products",
+            isAuthenticated:req.session.isLoggedIn
         })
     });
 }
@@ -58,20 +59,21 @@ exports.editAdminProducts = (req,res,next) => {
             res.render('pugs/admin/edit-product.pug',{
                 title:"Edit-Product",
                 editing:editMode,
-                product:product
+                product:product,
+                isAuthenticated:req.session.isLoggedIn                
             });
         });
     }
 }
 
 exports.postEditProductPage = (req,res,next) => {
-    console.log(req.body);
+    console.log(req.body);    
     let product = new Product(
                               req.body.title, 
                               req.body.imageUrl, 
                               req.body.price, 
                               req.body.description,
-                              req.user.Id,
+                              req.session.user.Id,
                               req.body.id
                             );
     product.save(() => res.redirect('/admin/products'));
