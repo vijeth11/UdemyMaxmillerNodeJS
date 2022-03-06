@@ -2,6 +2,8 @@
 const uuid = require('uuid');
 const express = require('express');
 const path = require('path');
+// for password encryption
+const bcrypt = require("bcryptjs");
 //const routes = require('./routes') //Vanila NodeJs
 //const server = http.createServer(routes); //Vanila NodeJs
 const bodyParser = require('body-parser');
@@ -35,6 +37,10 @@ app.set('views', 'views'); // this tells template engine to consider views folde
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
 // Sessions can be stored in a database like mongodb to do that checkout express-session docs
+// When some data is added to empty session it creates a session Id and stores t in the cookies in browser
+// So when we use req.session it uses the sessionid from request cookie and gets the session data from the storage in server
+// thus maintaining user specific data
+// In this project session is used in AuthController
 app.use(session({secret:SessionKey, resave:false, saveUninitialized:false}));
 /*app.use((req,res,next)=>{
     let user = new User();
@@ -64,7 +70,13 @@ sequelize
 })
 .then(user => {
     if(!user){
-        return User.create({name:"Main", email:"test@test1.com"});
+        return bcrypt.hash("1234567", 12)
+        .then((hashedPassword) => {
+            User.create({
+                name:"Main", 
+                email:"test@test1.com",
+                password:hashedPassword});
+        });
     }
     return user;
 })

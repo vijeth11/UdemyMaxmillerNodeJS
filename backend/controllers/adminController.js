@@ -6,11 +6,12 @@ exports.getAddProductPage = (req,res,next)=>{
     //console.log("In the Middleware");   
     //if you are using html file then below code
     //res.sendFile(path.join(rootDir,'views','add-product.html'));
-
+    
     // if view engine is setup for the express like PUG in this example then use render
     res.render('pugs/admin/edit-product.pug',{ 
                     title:"Add-Product",
-                    path:"/admin/add-product"
+                    path:"/admin/add-product",
+                    isAuthenticated:req.session.isLoggedIn
                     });
 
     // if view engine is setup for express as handlebars use render
