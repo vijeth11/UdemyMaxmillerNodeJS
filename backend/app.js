@@ -8,6 +8,7 @@ const bcrypt = require("bcryptjs");
 //const server = http.createServer(routes); //Vanila NodeJs
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const csrf = require('csurf');
 const authRouter = require('./Routes/auth');
 const shopRouter = require('./Routes/shop');
 const adminRouter = require('./Routes/admin');
@@ -17,6 +18,8 @@ const app = express();
 const expressHbs = require('express-handlebars');
 const User = require('./models/user');
 const SessionKey = uuid.v1();
+const csrfProtection = csrf();
+
 // Dynamic Templates setup
 /*PUG*/
 app.set('view engine','pug');
@@ -42,6 +45,11 @@ app.use(express.static(path.join(__dirname,'public')));
 // thus maintaining user specific data
 // In this project session is used in AuthController
 app.use(session({secret:SessionKey, resave:false, saveUninitialized:false}));
+// This a cross-site request forgery protection middleware it creates a token and adds it to request which needs to be used
+// By the view and send it along with post request from the view.
+// To send from the view the post request form should have Input tag which is hidden and name attribute saying "_csrf"(depends on the library)
+// and value attribute with the csrf token passed to the view from view engine render method
+app.use(csrfProtection);
 /*app.use((req,res,next)=>{
     let user = new User();
     user.findById(1).then(() => {
@@ -50,6 +58,12 @@ app.use(session({secret:SessionKey, resave:false, saveUninitialized:false}));
     });    
 });*/
 
+// this middleware will pass the csrf token and isAuthenticated to all the views rendered
+app.use((req,res,next) => {
+    res.locals.isAuthenticated = req.session ? req.session.isLoggedIn : false;
+    res.locals.csrftoken= req.csrfToken();
+    next();
+})
 app.use(shopRouter);
 app.use(authRouter);
 app.use('/admin',adminRouter); // /admin part is ommited from url path when sent to router in admin

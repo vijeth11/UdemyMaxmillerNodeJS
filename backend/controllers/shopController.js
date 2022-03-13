@@ -84,8 +84,7 @@ exports.getIndex = (req,res,next) => {
         res.render('pugs/shop/index.pug',{
         products:data, 
         title:"shop", 
-        path:"/",
-        isAuthenticated:req.session.isLoggedIn
+        path:"/"
         })
     });
 }
