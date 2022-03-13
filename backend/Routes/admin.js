@@ -4,7 +4,7 @@ const adminController = require('../controllers/adminController')
 const isAuth = require('../middleware/is-auth');
 
 // the router.use can have multiple request handlers "coma" seperated 
-// these handlers execute from left to right meaning in below example isAuth will run the based on its result
+// these handlers execute from left to right meaning in below example isAuth will run then based on its result
 // which if next() called then request is passed to getAddProductPage else if previous handler calls res() then the 
 // request will not go to forward handler
 
