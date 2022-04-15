@@ -1,14 +1,17 @@
 const User = require('../models/user');
 const utils = require('../utils/common');
+const { Op } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const { request } = require('http');
 
 var transport = nodemailer.createTransport({
     host: "smtp.mailtrap.io",
     port: 2525,
     auth: {
-      user: "6667426c98b5a9",
-      pass: "17cbf1876d152f"
+        user: "b804552d975d26",
+        pass: "cb01bc868a7e4d"
     }
   });
 
@@ -109,5 +112,108 @@ exports.postLogout = (req,res,next) => {
     req.session.destroy((err) => {
         console.log(err);
         res.redirect('/');
+    })
+}
+
+exports.getReset = (req,res,next) => {
+    let message = req.flash('error');
+    if(message.length > 0) {
+        message = message[0];
+    } else{
+        message = null;
+    }
+    res.render('pugs/auth/reset.pug',{
+        path:'/reset',
+        pageTitle: 'Reset Password',
+        errorMessage: message        
+    });
+}
+
+exports.postReset = (req,res,next) => {
+    const email = req.body.email;
+    crypto.randomBytes(32, (err, buff) => {
+        if(err){
+            console.log(err);
+            return res.redirect('/reset')
+        }
+        const token = buff.toString('hex');
+        User.findOne({where:{email: email}})
+        .then(user => {
+            if(!user){
+                req.flash('error','No account with that email found.');
+                return res.redirect('/reset');
+            }
+            user.resetToken = token;
+            user.resetTokenExpiration = Date.now() + 36000000;
+            return user.save();
+        })
+        .then(result => {
+            res.redirect('/');
+            transport.sendMail({
+                to: email,
+                from: 'shop@node-complete.com',
+                subject:'Password reset',
+                html: `
+                <p>You requested a password reset</p>
+                <p>Click this <a href="http://localhost:3000/reset/${token}">link </a> to set a new password.</p>
+                `
+            },(err,info) => {
+                if(err) console.log(err);
+                else console.log(info);
+            });  
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    })
+}
+
+exports.getNewPassword = (req,res,next) => {
+    const token = req.params.token;
+    User.findOne({where:{resetToken: token, resetTokenExpiration: {[Op.gt]: Date.now()}}})
+    .then(user => {
+        if(!user){
+            req.flash('error','token has expired.');            
+        }
+        let message = req.flash('error');
+        if(message.length > 0) {
+            message = message[0];
+        } else{
+            message = null;
+        }
+        res.render('pugs/auth/new-password.pug',{
+            path:'/new-password',
+            pageTitle: 'New Password',
+            errorMessage: message,
+            userId: user ? user.id.toString() : '0',
+            token: token        
+        });
+    })
+    .catch(err => {
+        console.log(err)
+    })    
+}
+exports.postNewPassword = (req,res,next) => {
+    const newPassword = req.body.password;
+    const userId = req.body.userId;
+    const token = req.body.passwordToken;
+    let resetUser = null;
+
+    User.findOne({where:{resetToken: token, resetTokenExpiration: {[Op.gt]: Date.now()},id:userId}})
+    .then(user => {
+       resetUser = user;
+       return  bcrypt.hash(newPassword,12)
+    })
+    .then(hashedPassword => {
+        resetUser.password = hashedPassword;
+        resetUser.resetToken = null;
+        resetUser.resetTokenExpiration = null;
+        return resetUser.save();
+    })
+    .then(result => {
+        return res.redirect('/login');
+    })
+    .catch(err => {
+        console.log(err);
     })
 }

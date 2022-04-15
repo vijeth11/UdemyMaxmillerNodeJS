@@ -1,5 +1,5 @@
 const sequelize = require('../utils/database').sequelize;
-const { Sequelize, DataType, Model, DataTypes } = require('sequelize');
+const { Sequelize, DataType, Model, DataTypes, STRING, DATE } = require('sequelize');
 
 class User extends Model{    
 
@@ -32,6 +32,14 @@ User.init({
         type: DataTypes.STRING,
         allowNull: false
         
+    },
+    resetToken: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    resetTokenExpiration:{
+        type: DataTypes.DATE,
+        allowNull: true
     }
 },{
     sequelize,

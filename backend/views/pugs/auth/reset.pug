@@ -7,14 +7,10 @@ block content
         if errorMessage
             div.user-message.user-message--error #{errorMessage}
 
-        form.login-form(action="/login", method="POST")
+        form.login-form(action="/reset", method="POST")
             .form-control
                 label(for="email") E-Mail
                 input(type="email", name="email", id="email")
-            .form-control
-                label(for="password") Password
-                input(type="password", name="password", id="password")
             input(type="hidden" name="_csrf" value=csrftoken)
-            button(class="btn", type="submit") Login
-            div.centered  
-                a(href="/reset") Reset Password    
+            button(class="btn", type="submit") Reset Password
+                
