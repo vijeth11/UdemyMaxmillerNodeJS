@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { request } = require('http');
+const { validationResult } = require('express-validator/check');
 
 var transport = nodemailer.createTransport({
     host: "smtp.mailtrap.io",
@@ -46,7 +47,7 @@ exports.getSignup = (req,res,next) => {
 exports.postLogin = async (req,res,next) => {    
     const email = req.body.email;
     const password = req.body.password;       
-    let user = await User.findOne({where:{email:email}});
+    let user = await User.findOne({where:{email:email}});    
     if(user){
         return bcrypt.compare(password,user.password).then((result) => {
             if(result){
@@ -76,6 +77,19 @@ exports.postSignup = async (req,res,next) => {
     const email = req.body.email;
     const password = req.body.password;
     const confpassword = req.body.confirmPassword;
+    // this is a server side forms validation achieved by using express-validator
+    // the validatorResult gets errors if any added to the request by the check middleware in the routes
+    // before comming to this controller(ref the documentation)
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        console.log(errors.array());
+        return res.status(422).render('pugs/auth/signup.pug',{
+            path:'/signup',
+            pageTitle: 'SignUp',
+            errorMessage: errors.array().map(x => x.msg).join("\n")        
+        });
+    }
+
     const user = await User.findOne({where :{ email: email}});
     if(!user){        
         if(password == confpassword){
