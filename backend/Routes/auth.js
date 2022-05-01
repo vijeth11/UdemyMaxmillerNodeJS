@@ -2,6 +2,7 @@ const express = require('express');
 const { check } = require('express-validator/check');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const User = require('../models/user');
 
 // /login => GET
 router.get('/login',authController.getLogin);
@@ -10,7 +11,14 @@ router.get('/login',authController.getLogin);
 router.get('/signup', authController.getSignup);
 
 // /login => POST
-router.post('/login', authController.postLogin);
+router.post('/login', [
+    check('email')
+    .isEmail()
+    .withMessage("Please enter a valid email address"),
+    check('password','Please enter a password with only numbers and text at least 5 characters.')
+    .isLength({min:5})
+    .isAlphanumeric(),
+],authController.postLogin);
 
 // This router takes a middleware for implementing serverside validation of the form sent in the post request
 // it is achieved by using express-validator library which provides a function called check which takes a single
@@ -30,7 +38,17 @@ router.post('/signup',
                         if(value == "test@test.com"){
                             throw new Error("This email address is forbidden");
                         }
-                        return true;
+                        return User.findOne({where :{ email: email}})
+                        .then(user => {
+                            if(user){
+                                return Promise.reject(
+                                    'Email exists already, please pick a different one.'
+                                );
+                            }
+                            else{
+                                return true;
+                            }
+                        });
                     }),
                 // second argument is default error message which needs to be shown if any of the validation fail
                 check('password','Please enter a password with only numbers and text at least 5 characters.')
