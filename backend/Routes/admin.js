@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController')
 const isAuth = require('../middleware/is-auth');
+const { check } = require('express-validator/check');
 
 // the router.use can have multiple request handlers "coma" seperated 
 // these handlers execute from left to right meaning in below example isAuth will run then based on its result
@@ -11,14 +12,39 @@ const isAuth = require('../middleware/is-auth');
 // /admin/add-product => GET
 router.use('/add-product',isAuth,adminController.getAddProductPage);
 
+// for more information on validation using check look at auth router
 // /admin/product => POST
-router.post('/product',isAuth,adminController.postAddProductPage);
+router.post('/product',isAuth,[
+    check('title')
+    .isString()
+    .isLength({min: 3})
+    .trim(),
+    check('imageUrl')
+    .isURL(),
+    check('price')
+    .isFloat(),
+    check('description')
+    .isLength({min: 5, max: 500})
+    .trim()    
+],adminController.postAddProductPage);
 
 // /admin/products => GET
 router.get('/products',isAuth,adminController.getAdminProducts);
 
 // /admin/product => POST
-router.post('/edit-product',isAuth,adminController.postEditProductPage);
+router.post('/edit-product',isAuth,[
+    check('title')
+    .isString()
+    .isLength({min: 3})
+    .trim(),
+    check('imageUrl')
+    .isURL(),
+    check('price')
+    .isFloat(),
+    check('description')
+    .isLength({min: 5, max: 500})
+    .trim()    
+],adminController.postEditProductPage);
 
 // /admin/delete-product/:id => POST
 router.post('/delete-product/', isAuth,adminController.deleteAdminProduct);

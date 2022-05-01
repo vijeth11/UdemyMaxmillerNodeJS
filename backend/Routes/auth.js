@@ -14,10 +14,12 @@ router.get('/signup', authController.getSignup);
 router.post('/login', [
     check('email')
     .isEmail()
-    .withMessage("Please enter a valid email address"),
+    .withMessage("Please enter a valid email address")
+    .normalizeEmail(),
     check('password','Please enter a password with only numbers and text at least 5 characters.')
     .isLength({min:5})
-    .isAlphanumeric(),
+    .isAlphanumeric()
+    .trim(),
 ],authController.postLogin);
 
 // This router takes a middleware for implementing serverside validation of the form sent in the post request
@@ -49,21 +51,23 @@ router.post('/signup',
                                 return true;
                             }
                         });
-                    }),
+                    })
+                    .normalizeEmail(),
                 // second argument is default error message which needs to be shown if any of the validation fail
                 check('password','Please enter a password with only numbers and text at least 5 characters.')
                     .isLength({min:5})
-                    .isAlphanumeric(),
+                    .isAlphanumeric()
+                    .trim(),
                 check('confirmPassword','Please enter a password with only numbers and text at least 5 characters.')
                     .isLength({min:5})
                     .isAlphanumeric()
+                    .trim()
                     .custom((value,{req}) => {
                         if(value != req.body.password){
                             throw new Error('Passwords have to match!')
                         }
                         return true;
                     })
-                    
             ],
             authController.postSignup);
 

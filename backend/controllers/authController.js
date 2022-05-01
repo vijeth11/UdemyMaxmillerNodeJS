@@ -27,6 +27,8 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message,
+    oldInput:{email:"",password:""},
+    validationErrors:[]
   });
 };
 
@@ -41,7 +43,8 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "SignUp",
     errorMessage: message,
-    oldInput:{email:"",password:"",confirmPassword:""}
+    oldInput:{email:"",password:"",confirmPassword:""},
+    validationErrors:[]
   });
 };
 
@@ -58,6 +61,8 @@ exports.postLogin = async (req, res, next) => {
         .array()
         .map((x) => x.msg)
         .join("\n"),
+      oldInput:{email:email,password:password},
+      validationErrors:errors.array()
     });
   }
   let user = await User.findOne({ where: { email: email } });
@@ -109,7 +114,8 @@ exports.postSignup = async (req, res, next) => {
         .array()
         .map((x) => x.msg)
         .join("\n"),
-      oldInput:{email: email, password:password, confirmPassword:confirmPassword}
+      oldInput:{email: email, password:password, confirmPassword:confirmPassword},
+      validationErrors:errors.array()
     });
   }
   if (password == confpassword) {

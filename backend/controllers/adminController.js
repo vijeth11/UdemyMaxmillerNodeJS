@@ -1,6 +1,7 @@
 
 const Cart = require('../models/cart');
 const Product = require('../models/product');
+const { validationResult } = require("express-validator/check");
 
 exports.getAddProductPage = (req,res,next)=>{
     //console.log("In the Middleware");   
@@ -11,7 +12,10 @@ exports.getAddProductPage = (req,res,next)=>{
     res.render('pugs/admin/edit-product.pug',{ 
                     title:"Add-Product",
                     path:"/admin/add-product",
-                    isAuthenticated:req.session.isLoggedIn
+                    isAuthenticated:req.session.isLoggedIn,
+                    hasError:false,
+                    errorMessage:null,
+                    validationErrors:[]
                     });
 
     // if view engine is setup for express as handlebars use render
@@ -22,6 +26,25 @@ exports.getAddProductPage = (req,res,next)=>{
 }
 
 exports.postAddProductPage = (req,res,next)=>{
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+        return res.status(422).render('pugs/admin/edit-product.pug',{ 
+            title:"Add-Product",
+            path:"/admin/add-product",
+            isAuthenticated:req.session.isLoggedIn,
+            product:{
+                title:req.body.title,
+                imageUrl:req.body.imageUrl,
+                price:req.body.price,
+                description:req.body.description,                
+            },
+            hasError: true,
+            errorMessage:errors.array()
+            .map((x) => x.msg)
+            .join("\n"),
+            validationErrors:errors.array()
+            });
+    }
     console.log(req.body);
     let product = new Product(
                               req.body.title, 
@@ -40,7 +63,7 @@ exports.getAdminProducts = (req,res,next) => {
             products:data, 
             title:"All Products", 
             path:"/admin/products",
-            isAuthenticated:req.session.isLoggedIn
+            isAuthenticated:req.session.isLoggedIn,            
         })
     });
 }
@@ -54,6 +77,7 @@ exports.editAdminProducts = (req,res,next) => {
     if(!editMode){
         res.redirect('/');
     }else{
+        const errors = validationResult(req)        
         Product.findById(productId, product => {
             if(!product){
                 return res.redirect('/');
@@ -62,13 +86,36 @@ exports.editAdminProducts = (req,res,next) => {
                 title:"Edit-Product",
                 editing:editMode,
                 product:product,
-                isAuthenticated:req.session.isLoggedIn                
+                isAuthenticated:req.session.isLoggedIn,
+                hasError:false,
+                errorMessage:null,
+                validationErrors:[]                
             });
         });
     }
 }
 
 exports.postEditProductPage = (req,res,next) => {
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+        return res.status(422).render('pugs/admin/edit-product.pug',{ 
+            title:"Edit-Product",
+            editing:editMode,
+            product:{
+                title:req.body.title,
+                imageUrl:req.body.imageUrl,
+                price:req.body.price,
+                description:req.body.description,
+                id:req.body.id               
+            },
+            isAuthenticated:req.session.isLoggedIn,    
+            hasError: true,
+            errorMessage:errors.array()
+            .map((x) => x.msg)
+            .join("\n"),
+            validationErrors:errors.array()
+        });
+    }
     console.log(req.body);
     Product.findById(req.body.id,(result) => {
         if(+result.UserId != +req.session.user.Id){
