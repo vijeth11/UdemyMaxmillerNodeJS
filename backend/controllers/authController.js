@@ -100,7 +100,7 @@ exports.postLogin = async (req, res, next) => {
 exports.postSignup = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  const confpassword = req.body.confirmPassword;
+  const confirmPassword = req.body.confirmPassword;
   // this is a server side forms validation achieved by using express-validator
   // the validatorResult gets errors if any added to the request by the check middleware in the routes
   // before comming to this controller(ref the documentation)
@@ -118,7 +118,7 @@ exports.postSignup = async (req, res, next) => {
       validationErrors:errors.array()
     });
   }
-  if (password == confpassword) {
+  if (password == confirmPassword) {
     bcrypt.hash(password, 12).then((hashedPassword) => {
       user = User.create({
         name: email.split("@")[0],

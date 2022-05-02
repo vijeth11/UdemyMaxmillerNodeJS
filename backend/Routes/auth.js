@@ -40,7 +40,7 @@ router.post('/signup',
                         if(value == "test@test.com"){
                             throw new Error("This email address is forbidden");
                         }
-                        return User.findOne({where :{ email: email}})
+                        return User.findOne({where :{ email: value}})
                         .then(user => {
                             if(user){
                                 return Promise.reject(
@@ -48,7 +48,7 @@ router.post('/signup',
                                 );
                             }
                             else{
-                                return true;
+                                return Promise.resolve(true);
                             }
                         });
                     })
