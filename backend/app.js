@@ -52,7 +52,7 @@ app.use(session({secret:SessionKey, resave:false, saveUninitialized:false}));
 // and value attribute with the csrf token passed to the view from view engine render method
 app.use(csrfProtection);
 
-//This is a lobrary used to display some flash message after user has performed any action
+//This is a library used to display some flash message after user has performed any action
 // so that the user is aware what is happening ex: when user tries logging in but he has not registered yet
 app.use(flash());
 /*app.use((req,res,next)=>{
@@ -78,6 +78,13 @@ app.use('/admin',adminRouter); // /admin part is ommited from url path when sent
 //     // browser will be spinning until unless you use res.send()
 // });
 app.use(errorRouter);
+
+// Error handling middleware called whenver Error object is passed as argument to next() like next(new Error("test"))
+// this bypasses all the other above middlewares whenever next with error object is called
+// if multiple error middleware are written then it follows same middleware pattern of express framework
+app.use((error, req, res, next)=>{
+    res.redirect('/500');
+});
 
 // creates the table of models related to this project if does not exist in database already sync({ force: true}) to drop all tables and recreate
 sequelize

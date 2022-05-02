@@ -46,14 +46,20 @@ exports.postAddProductPage = (req,res,next)=>{
             });
     }
     console.log(req.body);
-    let product = new Product(
-                              req.body.title, 
-                              req.body.imageUrl, 
-                              req.body.price, 
-                              req.body.description,
-                              req.session.user.Id
-                            );
-    product.save(() =>  res.redirect('/'));   
+    try{
+        let product = new Product(
+                                req.body.title, 
+                                req.body.imageUrl, 
+                                req.body.price, 
+                                req.body.description,
+                                req.session.user.Id
+                                );
+        product.save(() =>  res.redirect('/'));   
+    }catch(err)
+    {
+        let error = new Error(err);
+        return next(error);
+    }
 }
 
 exports.getAdminProducts = (req,res,next) => {    
@@ -117,32 +123,44 @@ exports.postEditProductPage = (req,res,next) => {
         });
     }
     console.log(req.body);
-    Product.findById(req.body.id,(result) => {
-        if(+result.UserId != +req.session.user.Id){
-            return res.redirect('/');
-        }
-        let product = new Product(
-            req.body.title, 
-            req.body.imageUrl, 
-            req.body.price, 
-            req.body.description,
-            req.session.user.Id,
-            req.body.id
-          );
-        product.save(() => res.redirect('/admin/products'));
-    });
+    try{
+        Product.findById(req.body.id,(result) => {
+            if(+result.UserId != +req.session.user.Id){
+                return res.redirect('/');
+            }
+            let product = new Product(
+                req.body.title, 
+                req.body.imageUrl, 
+                req.body.price, 
+                req.body.description,
+                req.session.user.Id,
+                req.body.id
+            );
+            product.save(() => res.redirect('/admin/products'));
+        });
+    }catch(err)
+    {
+        let error = new Error(err);
+        return next(error);
+    }
 }
 
 exports.deleteAdminProduct = (req,res,next) => {
     let productId = req.body.id;
     let productPrice = req.body.price;
-    Product.findById(req.body.id,(result) => {
-        if(+result.UserId != +req.session.user.Id){
-            return res.redirect('/');
-        }else{
-            Product.delteProduct(productId);
-            Cart.deleteProduct(productId,productPrice);
-            res.redirect('/admin/products');
-        }
-    });
+    try{
+        Product.findById(req.body.id,(result) => {
+            if(+result.UserId != +req.session.user.Id){
+                return res.redirect('/');
+            }else{
+                Product.delteProduct(productId);
+                Cart.deleteProduct(productId,productPrice);
+                res.redirect('/admin/products');
+            }
+        });
+    }catch(err)
+    {
+        let error = new Error(err);
+        return next(error);
+    }
 }

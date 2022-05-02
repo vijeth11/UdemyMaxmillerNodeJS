@@ -27,8 +27,8 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message,
-    oldInput:{email:"",password:""},
-    validationErrors:[]
+    oldInput: { email: "", password: "" },
+    validationErrors: [],
   });
 };
 
@@ -43,8 +43,8 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "SignUp",
     errorMessage: message,
-    oldInput:{email:"",password:"",confirmPassword:""},
-    validationErrors:[]
+    oldInput: { email: "", password: "", confirmPassword: "" },
+    validationErrors: [],
   });
 };
 
@@ -61,8 +61,8 @@ exports.postLogin = async (req, res, next) => {
         .array()
         .map((x) => x.msg)
         .join("\n"),
-      oldInput:{email:email,password:password},
-      validationErrors:errors.array()
+      oldInput: { email: email, password: password },
+      validationErrors: errors.array(),
     });
   }
   let user = await User.findOne({ where: { email: email } });
@@ -80,7 +80,8 @@ exports.postLogin = async (req, res, next) => {
           req.session.isLoggedIn = true;
           res.setHeader("Set-Cookie", "loggedIn=true; Max-Age=10");
           return req.session.save((err) => {
-            console.log(err);
+            let error = new Error(err);
+            return next(error);
             return res.redirect("/");
           });
         }
@@ -88,7 +89,8 @@ exports.postLogin = async (req, res, next) => {
         return res.redirect("/login");
       })
       .catch((err) => {
-        console.log(err);
+        let error = new Error(err);
+        return next(error);
       });
     //res.redirect('/');
   } else {
@@ -114,8 +116,12 @@ exports.postSignup = async (req, res, next) => {
         .array()
         .map((x) => x.msg)
         .join("\n"),
-      oldInput:{email: email, password:password, confirmPassword:confirmPassword},
-      validationErrors:errors.array()
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      },
+      validationErrors: errors.array(),
     });
   }
   if (password == confirmPassword) {
@@ -135,13 +141,16 @@ exports.postSignup = async (req, res, next) => {
               html: "<h1> You successfully signed up! </h1>",
             },
             (err, info) => {
-              if (err) console.log(err);
-              else console.log(info);
+              if (err) {
+                let error = new Error(err);
+                return next(error);
+              } else console.log(info);
             }
           );
         })
         .catch((err) => {
-          console.log(err);
+          let error = new Error(err);
+          return next(error);
         });
     });
     return;
@@ -150,7 +159,8 @@ exports.postSignup = async (req, res, next) => {
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
-    console.log(err);
+    let error = new Error(err);
+    return next(error);
     res.redirect("/");
   });
 };
@@ -173,7 +183,8 @@ exports.postReset = (req, res, next) => {
   const email = req.body.email;
   crypto.randomBytes(32, (err, buff) => {
     if (err) {
-      console.log(err);
+      let error = new Error(err);
+      return next(error);
       return res.redirect("/reset");
     }
     const token = buff.toString("hex");
@@ -200,13 +211,16 @@ exports.postReset = (req, res, next) => {
                 `,
           },
           (err, info) => {
-            if (err) console.log(err);
-            else console.log(info);
+            if (err) {
+              let error = new Error(err);
+              return next(error);
+            } else console.log(info);
           }
         );
       })
       .catch((err) => {
-        console.log(err);
+        let error = new Error(err);
+        return next(error);
       });
   });
 };
@@ -235,7 +249,8 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      let error = new Error(err);
+      return next(error);
     });
 };
 exports.postNewPassword = (req, res, next) => {
@@ -265,6 +280,7 @@ exports.postNewPassword = (req, res, next) => {
       return res.redirect("/login");
     })
     .catch((err) => {
-      console.log(err);
+      let error = new Error(err);
+      return next(error);
     });
 };

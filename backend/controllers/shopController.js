@@ -80,6 +80,7 @@ exports.deleteCartItem = (req,res,next) => {
 }
 
 exports.getIndex = (req,res,next) => {
+    try{
     Product.fetchAll((data) => {
         res.render('pugs/shop/index.pug',{
         products:data, 
@@ -87,6 +88,10 @@ exports.getIndex = (req,res,next) => {
         path:"/"
         })
     });
+    }catch(err){
+        let error = new Error(err);
+        return next(error);
+    }
 }
 
 exports.postOrder = (req,res,next) => {
@@ -102,7 +107,10 @@ exports.postOrder = (req,res,next) => {
            res.redirect('/orders');
        });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+        let error = new Error(err);
+        return next(error);
+    });
 }
 
 exports.getCheckout = (req,res,next) => {
@@ -124,6 +132,9 @@ exports.getOrders = (req,res,next) =>{
             orders:orders,
             isAuthenticated:req.session.isLoggedIn
         });
+    }).catch(err => {
+        let error = new Error(err);
+        return next(error);
     })
     
 } 
