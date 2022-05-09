@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 //const routes = require('./routes') //Vanila NodeJs
 //const server = http.createServer(routes); //Vanila NodeJs
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const session = require('express-session');
 const csrf = require('csurf');
 const flash = require('connect-flash');
@@ -39,6 +40,33 @@ app.set('views', 'views'); // this tells template engine to consider views folde
 //so when it tries to render we just need to write path to the pug file no need to add parent folder(ex: 'views/ejs/shop' can be written '/ejs/shop') 
 
 app.use(bodyParser.urlencoded({extended:false}));
+// this middleware is used to parse files in the form with encoding type multipart in it. we need to pass the attribute name in which file will be stored
+// multer takes an object with a property called dest ex: multer({dest:"images"}), the value passed to it will create a folder in working directory with that name and save the files sent in the form in it
+// with random name (this can be changed). Otherwise we will get strem data in req.body.file which we need to convert to file using file.js.
+// Other way is to create a storage object using multer.diskStorage function which takes an object with attributes destination and filename, both of them are functions.
+// the first one destination gets three args request , file object and call back function. We need to call callBack function with first arg as null which indicates no error and second with the folder name
+// where it needs to store the files from form. The next attribute is fileName which is also a function with three args request , file object and call back function. We need to call callBack function
+// with first arg as null which indicates no error and second with the name of the file in which file needs to be saved in destination folder. Then we need to set the storage attribute of middleware multer 
+// constructor obj argument with the storage object created in this ex: fileStorage.
+const fileStorage = multer.diskStorage({
+    destination:(req, file, cb) => {
+        cb(null, 'images');
+    },
+    filename:(req, file, cb)=>{
+        // filename is the random name given by multer and originalname is the name of the file uploaded via form.
+        cb(null, file.originalname);
+    }
+});
+// multer also provides us with ability to filter the files which needs to be stored. It is done by setting fileFilter attribute of multer obj argument. this attribute takes a function with three args request, file 
+// of type file object and a call back function. we need to call callBack function with first argument as null which indicates no error and second argument a boolean value true or false.
+// When sent true it will save the file else it will reject in below ex we are trying to save only png,jpgmjpeg files and discarding rest.
+const fileFilter = (req, file, cb) => {
+    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg')
+    cb(null, true);
+    else
+    cb(null,false);
+}
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(path.join(__dirname,'public')));
 // Sessions can be stored in a database like mongodb to do that checkout express-session docs
 // When some data is added to empty session it creates a session Id and stores it in the cookies in browser
@@ -83,6 +111,7 @@ app.use(errorRouter);
 // this bypasses all the other above middlewares whenever next with error object is called
 // if multiple error middleware are written then it follows same middleware pattern of express framework
 app.use((error, req, res, next)=>{
+    console.log(error);
     res.redirect('/500');
 });
 

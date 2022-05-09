@@ -19,8 +19,14 @@ router.post('/product',isAuth,[
     .isString()
     .isLength({min: 3})
     .trim(),
-    check('imageUrl')
-    .isURL(),
+    check('file')
+    .custom((value, {req}) => {
+        if(req.file){
+            return true;
+        }else{
+            throw new Error("Attached File is not an image");
+        }
+    }),
     check('price')
     .isFloat(),
     check('description')
@@ -37,8 +43,6 @@ router.post('/edit-product',isAuth,[
     .isString()
     .isLength({min: 3})
     .trim(),
-    check('imageUrl')
-    .isURL(),
     check('price')
     .isFloat(),
     check('description')

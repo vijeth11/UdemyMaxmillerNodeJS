@@ -34,7 +34,6 @@ exports.postAddProductPage = (req,res,next)=>{
             isAuthenticated:req.session.isLoggedIn,
             product:{
                 title:req.body.title,
-                imageUrl:req.body.imageUrl,
                 price:req.body.price,
                 description:req.body.description,                
             },
@@ -49,7 +48,7 @@ exports.postAddProductPage = (req,res,next)=>{
     try{
         let product = new Product(
                                 req.body.title, 
-                                req.body.imageUrl, 
+                                req.file.path, 
                                 req.body.price, 
                                 req.body.description,
                                 req.session.user.Id
@@ -108,8 +107,7 @@ exports.postEditProductPage = (req,res,next) => {
             title:"Edit-Product",
             editing:editMode,
             product:{
-                title:req.body.title,
-                imageUrl:req.body.imageUrl,
+                title:req.body.title,                
                 price:req.body.price,
                 description:req.body.description,
                 id:req.body.id               
@@ -130,7 +128,7 @@ exports.postEditProductPage = (req,res,next) => {
             }
             let product = new Product(
                 req.body.title, 
-                req.body.imageUrl, 
+                req.file? req.file.path : result.imageUrl, 
                 req.body.price, 
                 req.body.description,
                 req.session.user.Id,

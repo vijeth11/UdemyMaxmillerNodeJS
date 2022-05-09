@@ -80,8 +80,10 @@ exports.postLogin = async (req, res, next) => {
           req.session.isLoggedIn = true;
           res.setHeader("Set-Cookie", "loggedIn=true; Max-Age=10");
           return req.session.save((err) => {
-            let error = new Error(err);
-            return next(error);
+            if(err){
+              let error = new Error(err);
+              return next(error);
+            }
             return res.redirect("/");
           });
         }

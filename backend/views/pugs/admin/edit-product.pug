@@ -6,8 +6,8 @@ block content
     main
         if errorMessage
             div.user-message.user-message--error #{errorMessage}
-        
-        form.product-form(action="/admin/" + (editing ? "edit-product" : "product"), method="POST")
+        // default encoding type of form is urlencoded which does not send files so we need to use multipart encoding to handle both file and urlencoded form data
+        form.product-form(action="/admin/" + (editing ? "edit-product" : "product"), method="POST", enctype="multipart/form-data")
             .form-control
                 label(for="title") Title
                 input(class={invalid: validationErrors.find(e => e.param ==='title')}, type="text", name="title", id="title", value = (editing || hasError) ? product.title : '')
