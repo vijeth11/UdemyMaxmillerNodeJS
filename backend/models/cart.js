@@ -97,28 +97,33 @@ class Cart extends Model{
             }
         })*/
         try{
-            let cart = (await Cart.findOne({where:{UserId:userId}}));            
-            cart.update({totalPrice:+cart.totalPrice - (+productPrice)});
-            let productQuantity = (await ProductCart.findOne({
-                where:{
-                    productId:id,
-                    cartId:cart.dataValues.id                        
-                }
-            })).dataValues.quantity;            
-            if(onlyCart && +productQuantity > 1){
-                await ProductCart.update({quantity: +productQuantity - 1},{
-                    where:{
-                            productId:id,
-                            cartId:cart.dataValues.id
-                        }
-                });
-            } else {
-                await ProductCart.destroy({
+            let cart = (await Cart.findOne({where:{UserId:userId}}));
+            if(cart){         
+                let productQuantity = (await ProductCart.findOne({
                     where:{
                         productId:id,
-                        cartId:cart.dataValues.id
+                        cartId:cart.dataValues.id                        
                     }
-                });
+                }));
+                if(productQuantity){   
+                    cart.update({totalPrice:+cart.totalPrice - (+productPrice)});
+                    productQuantity = productQuantity.dataValues.quantity;            
+                    if(onlyCart && +productQuantity > 1){
+                        await ProductCart.update({quantity: +productQuantity - 1},{
+                            where:{
+                                    productId:id,
+                                    cartId:cart.dataValues.id
+                                }
+                        });
+                    } else {
+                        await ProductCart.destroy({
+                            where:{
+                                productId:id,
+                                cartId:cart.dataValues.id
+                            }
+                        });
+                    }
+                }
             }
             redirect();          
             

@@ -1,6 +1,9 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
 const Order = require('../models/order');
+const fs = require('fs');
+const path = require('path');
+const pdfkit = require('pdfkit');
 
 console.log(typeof(new Cart()));
 exports.getProducts = (req,res,next)=>{
@@ -138,4 +141,56 @@ exports.getOrders = (req,res,next) =>{
     })
     
 } 
+
+exports.getInvoice = (req,res,next) => {
+    const orderId = req.params.orderId;
+    const invoiceName = "invoice-"+orderId+".pdf"
+    const invoicePath = path.join('data', 'invoices',invoiceName);
+    console.log(invoicePath);
+    Order.findById(orderId)
+    .then((order) => {
+        if(!order){
+            let err = new Error("Order not found");
+            return next(err);
+        }else{
+            if(order.dataValues.UserId.toString() != req.session.user.Id)
+            {
+                return next(new Error("Unauthorized "));
+            }
+           /* return fs.readFile(invoicePath,(err, data) => {
+                if(err){
+                    next(err);
+                }else{
+                    res.setHeader('Content-Type','application/pdf');
+                    res.setHeader('Content-Disposition','attachment; filename="'+invoiceName+'"');
+                    return res.send(data);
+                }
+            });*/
+            // this is good streaming the data and server donot need to pre-load the data before sending the file
+            // createReadStream method returns file readStream object which can be piped with res which is writer
+            // thus the file be sent to browser as an when it reads the chunk hence no need to store the complete file in server
+            const pdfDoc = new pdfkit();
+            pdfDoc.pipe(fs.createWriteStream(invoicePath));            
+            //const file = fs.createReadStream(invoicePath);
+            res.setHeader('Content-Type','application/pdf');
+            res.setHeader('Content-Disposition','attachment; filename="'+invoiceName+'"');
+            //return file.pipe(res);
+            pdfDoc.pipe(res);
+            pdfDoc.fontSize(26).text("Invoice",{
+                underline:true
+            });
+            pdfDoc.text("----------------------------");
+            let total = 0
+            order.Products.forEach(product => {
+                pdfDoc.fontSize(14).text(product.title + ' - ' + product.orderItem.quantity +' x '+'$'+product.price);
+                total += +product.orderItem.quantity * +product.price;
+            });
+            pdfDoc.text("-----");
+            pdfDoc.fontSize(20).text('Total Price: $'+total);
+            pdfDoc.end();
+        }
+    })
+    .catch(err => next(err));
+    
+}
 

@@ -31,4 +31,7 @@ router.post('/create-order', isAuth,shopController.postOrder);
 
 // /product-detail/1 => GET
 router.get('/product-detail/:productId',shopController.getProductDetail); // always put routes with dynamic params in last because it will consider anything passed after first route part as dynamic
+
+// /orders/:orderId => GET
+router.get('/orders/:orderId', isAuth, shopController.getInvoice);
 module.exports = router;

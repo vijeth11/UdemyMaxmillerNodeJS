@@ -9,9 +9,10 @@ block content
             ul.orders
                 each order in orders
                     li.orders__item 
-                     h1 OrderId - ##{order.id} 
+                     h1 OrderId - ##{order.id} - #[a(href="/orders/"+order.id) invoice] 
                      ul.orders__products 
                         each product in order.Products
-                            li.orders__products-item #{product.title} (#{product.orderItem.quantity}) 
+                            li.orders__products-item #{product.title} (#{product.orderItem.quantity})
+                                
         else
             h1 Nothing there!

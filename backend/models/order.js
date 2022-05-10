@@ -32,6 +32,17 @@ class Order extends Model{
             }
         });
     }
+
+    static async findById(id){
+        return Order.findOne({
+            include:{
+                model:Product
+            },
+            where:{
+                id:id
+            }
+        });
+    }
 }
 
 Order.init({

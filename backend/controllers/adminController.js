@@ -2,6 +2,7 @@
 const Cart = require('../models/cart');
 const Product = require('../models/product');
 const { validationResult } = require("express-validator/check");
+const fileHelper = require('../utils/file');
 
 exports.getAddProductPage = (req,res,next)=>{
     //console.log("In the Middleware");   
@@ -126,6 +127,10 @@ exports.postEditProductPage = (req,res,next) => {
             if(+result.UserId != +req.session.user.Id){
                 return res.redirect('/');
             }
+            if(req.file){
+                console.log(result.imageUrl);
+                fileHelper.deleteFile(result.imageUrl);
+            }
             let product = new Product(
                 req.body.title, 
                 req.file? req.file.path : result.imageUrl, 
@@ -150,8 +155,9 @@ exports.deleteAdminProduct = (req,res,next) => {
         Product.findById(req.body.id,(result) => {
             if(+result.UserId != +req.session.user.Id){
                 return res.redirect('/');
-            }else{
+            }else{                
                 Product.delteProduct(productId);
+                fileHelper.deleteFile(result.imageUrl);
                 Cart.deleteProduct(productId,productPrice);
                 res.redirect('/admin/products');
             }

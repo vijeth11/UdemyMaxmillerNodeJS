@@ -68,6 +68,7 @@ const fileFilter = (req, file, cb) => {
 }
 app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(path.join(__dirname,'public')));
+app.use("/images",express.static(path.join(__dirname,'images')));
 // Sessions can be stored in a database like mongodb to do that checkout express-session docs
 // When some data is added to empty session it creates a session Id and stores it in the cookies in browser
 // So when we use req.session it uses the sessionid from request cookie and gets the session data from the storage in server
