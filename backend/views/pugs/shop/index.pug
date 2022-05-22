@@ -20,5 +20,8 @@ block content
                         .card__actions
                             if isAuthenticated 
                                 include ../includes/add-to-cart.pug
+            section.pagination 
+                a(href="/?page=1") 1
+                a(href="/?page=2") 2
         else 
             h1 No Products        
