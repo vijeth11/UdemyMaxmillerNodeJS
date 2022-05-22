@@ -6,6 +6,7 @@ const path = require('path');
 const pdfkit = require('pdfkit');
 
 console.log(typeof(new Cart()));
+const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req,res,next)=>{
     
     //if you are using html file then below code
@@ -84,13 +85,14 @@ exports.deleteCartItem = (req,res,next) => {
 
 exports.getIndex = (req,res,next) => {
     try{
-    Product.fetchAll((data) => {
-        res.render('pugs/shop/index.pug',{
-        products:data, 
-        title:"shop", 
-        path:"/"
-        })
-    });
+        const page = req.query.page;
+        Product.fetchAll((page-1)*ITEMS_PER_PAGE,ITEMS_PER_PAGE,(data) => {
+            res.render('pugs/shop/index.pug',{
+            products:data, 
+            title:"shop", 
+            path:"/"
+            })
+        });
     }catch(err){
         let error = new Error(err);
         return next(error);

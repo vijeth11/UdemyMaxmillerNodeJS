@@ -51,11 +51,11 @@ module.exports = class Product{
         }
     }
 
-    static fetchAll(res){
+    static fetchAll(start,end,res){
         //get data fron json file
         //getDataFromFile(res);
 
-        db.execute('Select * from products')
+        db.execute('Select * from products Limit ? OFFSET ? ',[end, start])
         .then(([rows, fieldData]) =>  res(rows))
         .catch(err => console.log(err))
     }
