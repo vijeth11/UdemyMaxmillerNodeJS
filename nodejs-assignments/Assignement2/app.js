@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const app = express();
 app.use('/users',(req,res,next)=>{
     res.send(
@@ -19,6 +20,12 @@ app.use((req,res,next)=>{
     console.log("middleware two");
     next();
 });*/
+app.use('/api/data',(req,res,next) => {
+    const rawData = fs.readFileSync('data.json');
+    const data = JSON.parse(rawData);
+    res.send({'test1':{...data},'test2':{...data}});
+})
+
 app.use('/api/:status',(req,res,next)=> {
     let status = req.params.status || 400;
     console.log("Error Message API sample for status "+ status + " time "+ new Date());
@@ -29,8 +36,10 @@ app.use('/api/:status',(req,res,next)=> {
     }
 });
 
+
 app.use('/',(req,res,next)=>{
     res.send("<h1>Welcome to Assignement2</h1>");
 });
+
 
 app.listen(3000);
