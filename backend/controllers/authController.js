@@ -187,7 +187,6 @@ exports.postReset = (req, res, next) => {
     if (err) {
       let error = new Error(err);
       return next(error);
-      return res.redirect("/reset");
     }
     const token = buff.toString("hex");
     User.findOne({ where: { email: email } })
